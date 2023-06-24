@@ -60,7 +60,15 @@ namespace Numbers
             if (b is NaturalNumber n)
                 return (long)Math.Pow(_value, n._value);
             if (b != 1 && b != 0)
-                return new Radical(this, b, 1);
+            {
+                if (b is Fraction f)
+                {
+                    var s = new Fraction(this, 1);
+                    return s ^ f;
+                }
+                else
+                    return new Radical(this, b, 1);
+            }
             else if (b != 0)
                 return this;
             else

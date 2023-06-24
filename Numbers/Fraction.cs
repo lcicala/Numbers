@@ -169,7 +169,88 @@ namespace Numbers
 
         protected override RealNumber Exponentiation(RealNumber b)
         {
-            throw new NotImplementedException();
+            if(b == 1)
+            {
+                if (Denominator == 1)
+                    return Numerator;
+                else
+                    return this;
+            }
+            else
+            {
+                if (b is Fraction f)
+                {
+                    if (f.Numerator is NaturalNumber exponentNumerator && f.Denominator is NaturalNumber exponentDenominator)
+                    {
+                        if (Numerator is NaturalNumber numerator)
+                        {
+                            if (Denominator is NaturalNumber denominator)
+                            {
+                                var primeFactorsGrouped = Operation.GetPrimeFactors((int)Math.Pow((long)numerator, (long)exponentNumerator)).GroupBy(x => x);
+                                var newPrimeFactorsNumerator = new List<int>();
+                                var primeFactorsMultiplierNumerator = new List<int>();
+                                var newPrimeFactorsDenominator = new List<int>();
+                                var primeFactorsMultiplierDenominator = new List<int>();
+                                primeFactorsMultiplierDenominator.Add(1);
+                                primeFactorsMultiplierNumerator.Add(1);
+                                newPrimeFactorsDenominator.Add(1);
+                                newPrimeFactorsNumerator.Add(1);
+                                foreach (var group in primeFactorsGrouped)
+                                {
+                                    newPrimeFactorsNumerator.AddRange(group.Take(group.Count() % (int)exponentDenominator));
+                                    primeFactorsMultiplierNumerator.AddRange(group.Take(group.Count() / (int)exponentDenominator));
+                                }
+                                primeFactorsGrouped = Operation.GetPrimeFactors((int)Math.Pow((int)denominator, (int)exponentNumerator)).GroupBy(x => x);
+                                foreach (var group in primeFactorsGrouped)
+                                {
+                                    newPrimeFactorsDenominator.AddRange(group.Take(group.Count() % (int)exponentDenominator));
+                                    primeFactorsMultiplierDenominator.AddRange(group.Take(group.Count() / (int)exponentDenominator));
+                                }
+                                var _exponent = new Fraction(1, exponentDenominator);
+                                var _base = new Fraction(newPrimeFactorsNumerator.Aggregate((x, y) => x * y), newPrimeFactorsDenominator.Aggregate((x, y) => x * y));
+                                var multiplier = (new Fraction(primeFactorsMultiplierNumerator.Aggregate((x, y) => x * y), primeFactorsMultiplierDenominator.Aggregate((x, y) => x * y)));
+                                if (_base != 1 && _exponent != 1)
+                                    return new Radical(_base, _exponent, multiplier);
+                                else if (_base == 1)
+                                    return multiplier;
+                                else
+                                    return _base * multiplier;
+                            }
+                        }
+                    }
+                }
+                else if(b is NaturalNumber n)
+                {
+                    if (Numerator is NaturalNumber numerator)
+                    {
+                        if (Denominator is NaturalNumber denominator)
+                        {
+                            var primeFactorsGrouped = Operation.GetPrimeFactors((int)Math.Pow((long)numerator, (long)n)).GroupBy(x => x);
+                            var newPrimeFactorsNumerator = new List<int>();
+                            var primeFactorsMultiplierNumerator = new List<int>();
+                            var newPrimeFactorsDenominator = new List<int>();
+                            var primeFactorsMultiplierDenominator = new List<int>();
+                            primeFactorsMultiplierDenominator.Add(1);
+                            primeFactorsMultiplierNumerator.Add(1);
+                            newPrimeFactorsDenominator.Add(1);
+                            newPrimeFactorsNumerator.Add(1);
+                            foreach (var group in primeFactorsGrouped)
+                            {
+                                primeFactorsMultiplierNumerator.AddRange(group.Take(group.Count()));
+                            }
+                            primeFactorsGrouped = Operation.GetPrimeFactors((int)Math.Pow((int)denominator, (int)n)).GroupBy(x => x);
+                            foreach (var group in primeFactorsGrouped)
+                            {
+                                primeFactorsMultiplierDenominator.AddRange(group.Take(group.Count()));
+                            }
+                            var _base = new Fraction(newPrimeFactorsNumerator.Aggregate((x, y) => x * y), newPrimeFactorsDenominator.Aggregate((x, y) => x * y));
+                            var multiplier = (new Fraction(primeFactorsMultiplierNumerator.Aggregate((x, y) => x * y), primeFactorsMultiplierDenominator.Aggregate((x, y) => x * y)));
+                            return _base * multiplier;
+                        }
+                    }
+                }
+                return new Radical(this, b);
+            }
         }
 
         protected override RealNumber Subtraction(RealNumber b)
