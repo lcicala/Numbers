@@ -204,7 +204,10 @@ namespace Numbers
 
         protected override RealNumber Exponentiation(RealNumber b)
         {
-            return new Radical(Base, Exponent * b, Multiplier);
+            var exp = Exponent * b;
+            if (exp == 1)
+                return Base * Multiplier;
+            return new Radical(Base, exp, Multiplier);
         }
 
         protected override RealNumber TrySum(RealNumber b)

@@ -101,7 +101,7 @@ namespace Numbers
 
         protected override RealNumber Division(RealNumber b)
         {
-            throw new NotImplementedException();
+            return new Fraction(this, b);
         }
 
         protected override RealNumber Exponentiation(RealNumber b)
