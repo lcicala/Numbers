@@ -4,7 +4,7 @@ This library allows you to use a more realistic real number representation in C#
 This is an example of what can you do
 ```C#
 RealNumber pi = new Constant(3.14, name: "Pi");
-RealNumber e = new Constant(2.71, name: "e");
+RealNumber e = new Constant(2.71828, name: "e");
 
 RealNumber sqrt2 = 2;
 RealNumber sqrt3 = 3;
