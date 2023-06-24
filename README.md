@@ -6,8 +6,11 @@ This is an example of what can you do
 RealNumber pi = new Constant(3.14, name: "Pi");
 RealNumber e = new Constant(2.71, name: "e");
 
-RealNumber sqrt2 = new Radical(2, 0.5); // you have to specify the base and the exponent, in this case 2 as a base and 0.5 as exponent
-RealNumber sqrt3 = new Radical(3, 0.5);
+RealNumber sqrt2 = 2;
+RealNumber sqrt3 = 3;
+
+sqrt2 = sqrt2 ^ 0.5;
+sqrt3 = sqrt3 ^ 0.5;
 
 Console.WriteLine($"({e}+{pi})*({e}-{pi})={(e+pi)*(e-pi)}");
 Console.WriteLine($"{pi}*{pi}*{e} = {r}");
