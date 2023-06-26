@@ -14,6 +14,8 @@ namespace Numbers
         private List<RealNumber> _numbers;
 
         protected RealNumber _multiplier;
+
+        public RealNumber Multiplier { get => _multiplier; internal set => _multiplier = value; }
         protected RealNumber(RealNumber multiplier, params RealNumber[] numbers)
         {
             _numbers = numbers?.ToList();
@@ -87,6 +89,7 @@ namespace Numbers
         protected virtual RealNumber Sum(RealNumber b)
         {
             IEnumerable<RealNumber> numbers = this;
+            bool isSum = false;
             foreach (var n in this)
             {
                 foreach (var n2 in b)
@@ -102,18 +105,32 @@ namespace Numbers
                         trysum = n?.TrySum(b) ?? null;
                     if (trysum is not null)
                     {
+                        isSum = true;
                         numbers = numbers.Except(n).Concat(trysum);
-                        return new RealNumber(1, numbers.ToArray());
+                        if (b is not RealNumberMid)
+                        {
+                            var cs = b.Except(n2).Select(x => { var y = x.Clone() as RealNumber; y._multiplier *= b._multiplier; return y; });
+                            numbers = numbers.Where(x => x is not null && x != 0).Concat(cs);
+                        }
+                        else
+                            numbers = numbers.Where(x => x is not null && x != 0).Concat(b.Except(n2));
+                        //var cs = b.Except(n2).Select(x => { var y = x.Clone() as RealNumber; y._multiplier *= b._multiplier; return y; });
+                        //////numbers = numbers.Where(x => x is not null && x != 0).Concat(c);
+                        //numbers = numbers.Concat(cs);
+                        //return new RealNumber(1, numbers.ToArray());
                     }
                 }
             }
-            if(b is not RealNumberMid)
+            if (!isSum)
             {
-                var c = b.Select(x => { var y = x.Clone() as RealNumber; y._multiplier *= b._multiplier; return y; });
-                numbers = numbers.Where(x => x is not null).Concat(c);
+                if (b is not RealNumberMid)
+                {
+                    var c = b.Select(x => { var y = x.Clone() as RealNumber; y._multiplier *= b._multiplier; return y; });
+                    numbers = numbers.Where(x => x is not null && x != 0).Concat(c);
+                }
+                else
+                    numbers = numbers.Where(x => x is not null && x != 0).Concat(b);
             }
-            else
-                numbers = numbers.Where(x => x is not null).Concat(b);
             return new RealNumber(1, numbers.ToArray());
         }
 
@@ -154,9 +171,13 @@ namespace Numbers
             {
                 foreach (var n2 in b)
                 {
-                    numbers.Add(n.Product(n2));
+                    var prod = n.Product(n2);
+                    if(prod != 0)
+                        numbers.Add(prod);
                 }
             }
+            if(numbers.Count == 1)
+                return numbers[0];
             //return new RealNumber(1, numbers.ToArray());
             return new RealNumber(1, numbers.Aggregate((x, y) => x.Sum(y)).ToArray());
         }
@@ -167,6 +188,15 @@ namespace Numbers
         protected virtual RealNumber Division(RealNumber b) => throw new NotImplementedException();
         protected virtual RealNumber Exponentiation(RealNumber b)
         {
+            if(b is NaturalNumber n)
+            {
+                RealNumber ret = 1;
+                for(int i = 0; i < (long)n; i++)
+                {
+                    ret = ret.Product(this);
+                }
+                return ret;
+            }
             if (b != 1 && b != 0)
                 return new Radical(this, b, _multiplier);
             else if (b != 0)
@@ -196,7 +226,7 @@ namespace Numbers
             return (double)this == (double)other;
         }
 
-        public object Clone()
+        public virtual object Clone()
         {
             return new RealNumber(_multiplier, _numbers?.ToArray());
         }

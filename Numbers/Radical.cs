@@ -105,19 +105,19 @@ namespace Numbers
             {
                 if (Base == r.Base && Exponent == r.Exponent)
                     return new Radical(Base, Exponent, Multiplier + r.Multiplier);
-                else
-                    return CreateInstance(1, this, r);
             }
-            else
+            if(b.Multiplier is Radical rm)
             {
-                //List<RealNumber> l = new List<RealNumber>();
-                //foreach (var n in b)
-                //{
-                //    l.Add(Sum(n));
-                //}
-                //return CreateInstance(l.ToArray());
-                return CreateInstance(1, this, b);
+                if (Base == rm.Base && Exponent == rm.Exponent)
+                {
+                    var s = b.Clone() as RealNumber;
+                    s.Multiplier = 1;
+                    return new Radical(Base, Exponent, Multiplier + (rm.Multiplier*s));
+                }
+                else
+                    return CreateInstance(1, this, rm);
             }
+            return CreateInstance(1, this, b);
         }
 
         protected override double CastToDouble()
@@ -169,8 +169,14 @@ namespace Numbers
             }
             else if (b is Radical r)
             {
-                if(Base == r.Base)
-                    return new Radical(Base, Exponent + r.Exponent, Multiplier * r.Multiplier);
+                if (Base == r.Base)
+                {
+                    var exp = Exponent + r.Exponent;
+                    if(exp != 1)
+                        return new Radical(Base, Exponent + r.Exponent, Multiplier * r.Multiplier);
+                    else
+                        return Base * Multiplier * r.Multiplier;
+                }
                 if (Exponent == r.Exponent)
                     return new Radical(Base * r.Base, Exponent, Multiplier * r.Multiplier);
                 if (Exponent is Fraction thisExponent)
@@ -206,7 +212,7 @@ namespace Numbers
         {
             var exp = Exponent * b;
             if (exp == 1)
-                return Base * Multiplier;
+                return Base * (Multiplier ^ b);
             return new Radical(Base, exp, Multiplier);
         }
 
@@ -216,13 +222,18 @@ namespace Numbers
             {
                 if (Base == r.Base && Exponent == r.Exponent || (Exponent == 1 && r.Exponent == 1))
                     return Sum(r);
-                else
-                    return null;
             }
-            else
+            if(b.Multiplier is Radical rm)
             {
-                return null;
+                if (Base == rm.Base && Exponent == rm.Exponent || (Exponent == 1 && rm.Exponent == 1))
+                    return Sum(b);
             }
+            return null;
+        }
+
+        public override object Clone()
+        {
+            return new Radical(Base, Exponent, Multiplier);
         }
 
         //public static bool operator >(Radical a, Radical b)

@@ -77,9 +77,9 @@ namespace Numbers
                 if (this._name == null && c._name == null)
                     return new Constant(_value * c._value, _multiplier*c._multiplier);
                 else if (_name == c._name)
-                    return new Radical(this, 2, _multiplier*c._multiplier);
+                    return new Radical(new Constant(_value, name: _name), 2, _multiplier*c._multiplier);
                 else
-                    return new Constant(_value, c, _name);
+                    return new Constant(_value, c*_multiplier, _name);
             }
             else if(b is NaturalNumber n)
             {
@@ -132,10 +132,29 @@ namespace Numbers
                 else
                     return null;
             }
+            if(b.Multiplier is Constant cm)
+            {
+                var bcopy = b.Clone() as RealNumber;
+                bcopy!.Multiplier = 1;
+                var tmp = new Constant(cm._value, cm._multiplier * bcopy, cm._name);
+                if (this._name == null && cm._name == null)
+                    return Sum(tmp);
+                else if (_name == cm._name)
+                    return Sum(tmp);
+                else if (_multiplier is Constant c1 && cm._multiplier is Constant c2 && (c1._name == cm._name && _name == c2._name))
+                    return Sum(tmp);
+                else
+                    return null;
+            }
             else
             {
                 return null;
             }
+        }
+
+        public override object Clone()
+        {
+            return new Constant(_value, _multiplier, _name);
         }
     }
 }
